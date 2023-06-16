@@ -2,12 +2,36 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = 3000;
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cookieParser());
+
+// Token authentication middleware
+function authenticateToken(req, res, next) {
+    const token = req.cookies.access_token;
+    console.log(token);
+
+    if (!token) {
+        res.status(401).send('Access token not provided.');
+        return;
+    }
+
+    jwt.verify(token, 'secret_key', (error, user) => {
+        if (error) {
+            res.status(403).send('Invalid token.');
+            return;
+        }
+
+        req.user = user;
+        next();
+    });
+}
+
 
 // MongoDB connection
 // const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/vjezbanje';
@@ -60,6 +84,11 @@ app.post('/login', (req, res) => {
             }
 
             const token = jwt.sign({ username, role: user.role }, 'secret_key');
+            res.cookie('access_token', token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'strict'
+              });
             res.send({ token });
         })
         .catch((error) => {
@@ -67,6 +96,25 @@ app.post('/login', (req, res) => {
             res.status(500).send('An error occurred while authenticating user.');
         });
 });
+
+//reset password route
+app.post('/reset-password',authenticateToken, (req, res) => {
+    const { username } = req.user;
+    User.findOne({username}).then((user) => {
+        if(!user) {
+            res.status(404).send("User not found");
+            return;
+        }
+        user.password = req.body.password;
+        user.save().then(() => {
+            res.send("Password changed successfully")
+        }).catch((e) => {
+            res.status(500).send("An error occured");
+        });
+    }).catch((e) => {
+        res.status(500).send("Cant not find user")
+    })
+})
 
 // Empty users collection route
 app.delete('/users', (req, res) => {
@@ -86,26 +134,6 @@ app.get('/protected', authenticateToken, (req, res) => {
     res.send('Protected route!');
 });
 
-// Token authentication middleware
-function authenticateToken(req, res, next) {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-
-    if (!token) {
-        res.status(401).send('Access token not provided.');
-        return;
-    }
-
-    jwt.verify(token, 'secret_key', (error, user) => {
-        if (error) {
-            res.status(403).send('Invalid token.');
-            return;
-        }
-
-        req.user = user;
-        next();
-    });
-}
 
 // Start the server
 app.listen(port, () => {
