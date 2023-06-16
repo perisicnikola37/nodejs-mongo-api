@@ -11,6 +11,30 @@ const port = 3000;
 app.use(bodyParser.json());
 app.use(cookieParser());
 
+
+// Token authentication middleware
+function authenticateToken(req, res, next) {
+    const token = req.cookies.access_token;
+    console.log(token);
+
+    if (!token) {
+        res.status(401).send('Access token not provided.');
+        return;
+    }
+
+    jwt.verify(token, 'secret_key', (error, user) => {
+        if (error) {
+            res.status(403).send('Invalid token.');
+            return;
+        }
+
+        req.user = user;
+        next();
+    });
+}
+
+=======
+
 // MongoDB connection
 // const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/vjezbanje';
 const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/?retryWrites=true&w=majority';
@@ -108,21 +132,6 @@ app.post('/login', (req, res) => {
                 res.status(401).send('Invalid username or password.');
                 return;
             }
-
-            if (user.password !== password) {
-                // User's password is incorrect
-                res.status(401).send('Invalid username or password.');
-                return;
-            }
-
-            // Generate a new token
-            const tokenVersion = user.tokenVersion || 0;
-            const token = jwt.sign({ username, role: user.role, tokenVersion }, 'token');
-
-            // Set the token in a cookie named "token" with an expiration of 30 days
-            const expirationDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-            res.cookie('token', token, { expires: expirationDate });
-
             res.send({ token });
         })
         .catch((error) => {
@@ -130,6 +139,25 @@ app.post('/login', (req, res) => {
             res.status(500).send('An error occurred while authenticating user.');
         });
 });
+
+//reset password route
+app.post('/reset-password',authenticateToken, (req, res) => {
+    const { username } = req.user;
+    User.findOne({username}).then((user) => {
+        if(!user) {
+            res.status(404).send("User not found");
+            return;
+        }
+        user.password = req.body.password;
+        user.save().then(() => {
+            res.send("Password changed successfully")
+        }).catch((e) => {
+            res.status(500).send("An error occured");
+        });
+    }).catch((e) => {
+        res.status(500).send("Cant not find user")
+    })
+})
 
 // Empty users collection route
 app.delete('/users', (req, res) => {
@@ -154,9 +182,6 @@ app.get('/logout', (req, res) => {
 app.get('/protected', authenticateToken, (req, res) => {
     res.send('HELLO WORLD!');
 });
-
-// Token authentication middleware
-
 
 
 // Start the server
