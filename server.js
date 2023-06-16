@@ -12,7 +12,6 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // MongoDB connection
-// const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/vjezbanje';
 const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
@@ -47,32 +46,12 @@ const authenticateToken = async (req, res, next) => {
             return;
         }
 
-        console.log(decodedToken, "DEKODIRANI TOKEN")
-        // Verify token version
-
         const user = await User.findOne({ username: decodedToken.username })
 
         res.status(200).json({
             user,
             msg: "Valid session"
         })
-
-
-
-        // User.findOne({ username: decodedToken.username })
-        //     .then((user) => {
-        //         if (!user || user.tokenVersion !== decodedToken.tokenVersion) {
-        //             res.status(403).send('Invalid token.');
-        //             return;
-        //         }
-
-        //         req.user = decodedToken;
-        //         next();
-        //     })
-        //     .catch((error) => {
-        //         console.error('Error verifying token', error);
-        //         res.status(500).send('An error occurred while verifying token.');
-        //     });
     });
 }
 
@@ -96,8 +75,6 @@ app.post('/register', (req, res) => {
         });
 });
 
-// Login route
-// Login route
 // Login route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -154,10 +131,6 @@ app.get('/logout', (req, res) => {
 app.get('/protected', authenticateToken, (req, res) => {
     res.send('HELLO WORLD!');
 });
-
-// Token authentication middleware
-
-
 
 // Start the server
 app.listen(port, () => {
