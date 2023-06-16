@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const axios = require('axios')
 
 const app = express();
 const port = 3000;
@@ -25,6 +26,7 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
 const User = mongoose.model('User', {
     username: String,
     email: String,
+    description: String, // Added the description property
     password: String,
 });
 
@@ -61,19 +63,45 @@ app.get('/', (req, res) => {
 });
 
 // Register route
-app.post('/register', (req, res) => {
-    const { username, email, password } = req.body;
+// Register route
+// Register route
+app.post('/register', async (req, res) => {
+    const { username, email, password, description } = req.body;
 
-    const user = new User({ username, email, password });
-    user.save()
-        .then(() => {
-            res.send('User registered successfully!');
-        })
-        .catch((error) => {
-            console.error('Error registering user', error);
-            res.status(500).send('An error occurred while registering user.');
-        });
+    const translationOptions = {
+        method: 'POST',
+        url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
+        headers: {
+            'content-type': 'application/json',
+            'X-RapidAPI-Key': 'bcfdee6c9dmsh4e3903236f08f3ep1ec2e0jsn25dfcc1e60d7',
+            'X-RapidAPI-Host': 'rapid-translate-multi-traduction.p.rapidapi.com'
+        },
+        data: {
+            from: 'hr',
+            to: 'en',
+            q: description
+        }
+    };
+
+    try {
+        const translationResponse = await axios.request(translationOptions);
+        const translatedDescription = translationResponse.data.translatedText;
+
+        const user = new User({ username, email, password, description: translationResponse.data[0] });
+        user.save()
+            .then(() => {
+                res.send('User registered successfully!');
+            })
+            .catch((error) => {
+                console.error('Error registering user', error);
+                res.status(500).send('An error occurred while registering user.');
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('An error occurred while translating the description.');
+    }
 });
+
 
 // Login route
 app.post('/login', (req, res) => {
