@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // MongoDB connection
-const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/?retryWrites=true&w=majority';
+const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/test';
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to MongoDB');
@@ -78,16 +78,16 @@ app.post('/register', async (req, res) => {
         },
         data: {
             from: 'hr',
-            to: 'en',
+            to: 'ar',
             q: description
         }
     };
 
     try {
         const translationResponse = await axios.request(translationOptions);
-        const translatedDescription = translationResponse.data.translatedText;
+        const response = translationResponse.data[0];
 
-        const user = new User({ username, email, password, description: translationResponse.data[0] });
+        const user = new User({ username, email, password, description: response });
         user.save()
             .then(() => {
                 res.send('User registered successfully!');
