@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const axios = require('axios')
+require('dotenv').config();
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,8 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // MongoDB connection
-const mongoURI = 'mongodb+srv://nikola:06032004@cluster0.4uutsny.mongodb.net/test';
+const mongoURI = process.env.DATABASE_URL;
+
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log('Connected to MongoDB');
