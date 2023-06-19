@@ -1,32 +1,13 @@
-const app = require("./app");
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
-const axios = require('axios')
+const axios = require('axios');
 require('dotenv').config();
 
-// Port
-const port = 3000;
-
-// Models
-const User = require('./models/userModel');
-
-// Middleware
-app.use(bodyParser.json());
-app.use(cookieParser());
-
-// MongoDB connection
-const mongoURI = process.env.DATABASE_URL;
-
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        console.log('Connected to MongoDB');
-    })
-    .catch((error) => {
-        console.error('Error connecting to MongoDB', error);
-    });
+// Initialize application
+const app = express();
 
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies.token;
@@ -36,31 +17,35 @@ const authenticateToken = async (req, res, next) => {
         return;
     }
 
-    jwt.verify(token, 'token', async (error, decodedToken) => {
-
-        if (error !== null && error !== undefined) {
+    jwt.verify(token, process.env.JWT_SECRET, async (error, decodedToken) => {
+        if (error) {
             res.status(500).json({
                 msg: 'Invalid token',
-                status: "Auth not valid"
+                status: 'Auth not valid'
             });
             return;
         }
 
-        const user = await User.findOne({ username: decodedToken.username })
+        const user = await User.findOne({ username: decodedToken.username });
 
-        res.status(200).json({
-            user,
-            msg: "Valid session"
-        })
+        if (!user) {
+            res.status(404).json({
+                msg: 'User not found',
+                status: 'Auth not valid'
+            });
+            return;
+        }
+
+        req.user = user;
+        next();
     });
-}
+};
 
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello, API!');
 });
 
-// Register route
 app.post('/register', async (req, res) => {
     const { username, email, password, description } = req.body;
 
@@ -69,8 +54,8 @@ app.post('/register', async (req, res) => {
         url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
         headers: {
             'content-type': 'application/json',
-            'X-RapidAPI-Key': 'bcfdee6c9dmsh4e3903236f08f3ep1ec2e0jsn25dfcc1e60d7',
-            'X-RapidAPI-Host': 'rapid-translate-multi-traduction.p.rapidapi.com'
+            'X-RapidAPI-Key': process.env.RAPIDAPI_API_KEY,
+            'X-RapidAPI-Host': process.env.RAPIDAPI_API_HOST
         },
         data: {
             from: 'hr',
@@ -84,22 +69,15 @@ app.post('/register', async (req, res) => {
         const response = translationResponse.data[0];
 
         const user = new User({ username, email, password, description: response });
-        user.save()
-            .then(() => {
-                res.send('User registered successfully!');
-            })
-            .catch((error) => {
-                console.error('Error registering user', error);
-                res.status(500).send('An error occurred while registering user.');
-            });
+        await user.save();
+
+        res.send('User registered successfully!');
     } catch (error) {
         console.error(error);
-        res.status(500).send('An error occurred while translating the description.');
+        res.status(500).send('An error occurred while registering user.');
     }
 });
 
-
-// Login route
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -111,19 +89,15 @@ app.post('/login', (req, res) => {
             }
 
             if (user.password !== password) {
-                // User's password is incorrect
                 res.status(401).send('Invalid username or password.');
                 return;
             }
 
-            // Generate a new token
-            const tokenVersion = user.tokenVersion || 0;
-            const token = jwt.sign({ username, role: user.role, tokenVersion }, 'token');
+            const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
+                expiresIn: '30d'
+            });
 
-            // Set the token in a cookie named "token" with an expiration of 30 days
-            const expirationDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-            res.cookie('token', token, { expires: expirationDate });
-
+            res.cookie('token', token, { httpOnly: true });
             res.send({ token });
         })
         .catch((error) => {
@@ -132,7 +106,6 @@ app.post('/login', (req, res) => {
         });
 });
 
-// Empty users collection route
 app.delete('/users', (req, res) => {
     User.deleteMany({})
         .then(() => {
@@ -144,19 +117,16 @@ app.delete('/users', (req, res) => {
         });
 });
 
-// Logout route
 app.get('/logout', (req, res) => {
     res.clearCookie('token');
     res.send('Logged out successfully!');
 });
 
-
-// Protected route
 app.get('/protected', authenticateToken, (req, res) => {
-    res.send('HELLO WORLD!');
+    res.send({
+        user: req.user,
+        msg: 'Valid session'
+    });
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+module.exports = app;
