@@ -11,20 +11,12 @@ const userRoutes = require('./routes/userRoutes');
 app.use(express.json())
 app.use(cookieParser());
 
-// Use routes
+// User routes
 app.use("/api/v1", userRoutes);
 
-
-// Routes
+// Main route
 app.get('/', (req, res) => {
-    res.send('Hello, API!');
+    res.send('Hello world!');
 });
-
-app.get('/logout', (req, res) => {
-    res.clearCookie('token');
-    res.send('Logged out successfully!');
-});
-
-
 
 module.exports = app;

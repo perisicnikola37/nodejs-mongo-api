@@ -78,4 +78,9 @@ const protectedRoute = (req, res) => {
     });
 };
 
-module.exports = { registerUser, loginUser, deleteUsers, protectedRoute };
+const logout = (req, res) => {
+    res.clearCookie(process.env.JWT_SECRET);
+    res.send('Logged out successfully!');
+}
+
+module.exports = { registerUser, loginUser, deleteUsers, protectedRoute, logout };
