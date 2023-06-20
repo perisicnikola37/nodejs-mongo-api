@@ -103,4 +103,11 @@ const deleteUsers = async (req, res) => {
         });
 };
 
-module.exports = { registerUser, loginUser, deleteUsers };
+const protectedRoute = (req, res) => {
+    res.send({
+        user: req.user,
+        msg: 'Valid session'
+    });
+};
+
+module.exports = { registerUser, loginUser, deleteUsers, protectedRoute, authenticateToken };

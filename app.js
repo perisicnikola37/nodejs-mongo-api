@@ -14,6 +14,7 @@ app.use(cookieParser());
 // Use routes
 app.use("/api/v1", userRoutes);
 
+
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello, API!');
@@ -24,11 +25,6 @@ app.get('/logout', (req, res) => {
     res.send('Logged out successfully!');
 });
 
-// app.get('/protected', authenticateToken, (req, res) => {
-//     res.send({
-//         user: req.user,
-//         msg: 'Valid session'
-//     });
-// });
+
 
 module.exports = app;
