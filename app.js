@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(cookieParser());
 
 // Use routes
-app.use("/", userRoutes);
+app.use("/api/v1", userRoutes);
 
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies.token;
@@ -76,17 +76,6 @@ app.post('/login', (req, res) => {
         .catch((error) => {
             console.error('Error authenticating user', error);
             res.status(500).send('An error occurred while authenticating user.');
-        });
-});
-
-app.delete('/users', (req, res) => {
-    User.deleteMany({})
-        .then(() => {
-            res.send('Users collection emptied successfully!');
-        })
-        .catch((error) => {
-            console.error('Error emptying users collection', error);
-            res.status(500).send('An error occurred while emptying users collection.');
         });
 });
 

@@ -1,29 +1,28 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const axios = require('axios')
+const translationOptions = require("../lib/lib")
 
 const register = async (req, res) => {
     const { username, email, password, description } = req.body;
 
-    const translationOptions = {
-        method: 'POST',
-        url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
-        headers: {
-            'content-type': 'application/json',
-            'X-RapidAPI-Key': process.env.RAPIDAPI_API_KEY || 'default-api-key',
-            'X-RapidAPI-Host': process.env.RAPIDAPI_API_HOST || 'default-api-host'
-        },
-        data: {
-            from: process.env.FROM || 'hr',
-            to: process.env.TO || 'gb',
-            q: description
-        }
-    };
+    translationOptions.data.q = description;
 
     try {
-        const translationResponse = await axios(translationOptions);
-        const response = translationResponse.data[0];
+        // old way
+        // const translationResponse = await axios(translationOptions);
+        // const response = translationResponse.data[0];
 
+        // updated way
+        const { data: [response] } = await axios(translationOptions);
+
+        // Check if user exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ success: false, message: 'Email address is already registered' });
+        }
+
+        // Store user
         const user = new User({ username, email, password, description: response });
         await user.save();
 
@@ -33,4 +32,15 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = { register };
+const deleteUsers = async (req, res) => {
+    User.deleteMany({})
+        .then(() => {
+            res.send('Users collection emptied successfully!');
+        })
+        .catch((error) => {
+            console.error('Error emptying users collection', error);
+            res.status(500).send('An error occurred while emptying users collection.');
+        });
+};
+
+module.exports = { register, deleteUsers };
