@@ -3,7 +3,7 @@ const User = require("../models/userModel");
 const axios = require('axios')
 const translationOptions = require("../lib/lib")
 
-const register = async (req, res) => {
+const registerUser = async (req, res) => {
     const { username, email, password, description } = req.body;
 
     translationOptions.data.q = description;
@@ -32,6 +32,66 @@ const register = async (req, res) => {
     }
 };
 
+const authenticateToken = async (req, res, next) => {
+    const token = req.cookies.token;
+
+    if (!token) {
+        res.status(401).send('Access token not provided.');
+        return;
+    }
+
+    jwt.verify(token, process.env.JWT_SECRET || 'token', async (error, decodedToken) => {
+        if (error) {
+            res.status(500).json({
+                msg: 'Invalid token',
+                status: 'Auth not valid'
+            });
+            return;
+        }
+
+        const user = await User.findOne({ username: decodedToken.username });
+
+        if (!user) {
+            res.status(404).json({
+                msg: 'User not found',
+                status: 'Auth not valid'
+            });
+            return;
+        }
+
+        req.user = user;
+        next();
+    });
+};
+
+const loginUser = async (req, res) => {
+    const { username, password } = req.body;
+
+    User.findOne({ username }).select('+password')
+        .then((user) => {
+            if (!user) {
+                res.status(401).send('Invalid username or password.');
+                return;
+            }
+
+            if (user.password !== password) {
+                res.status(401).send('Invalid username or password.');
+                return;
+            }
+
+            const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
+                expiresIn: '30d'
+            });
+
+            res.cookie('token', token, { httpOnly: true });
+            res.send({ token });
+        })
+        .catch((error) => {
+            console.error('Error authenticating user', error);
+            res.status(500).send('An error occurred while authenticating user.');
+        });
+};
+
 const deleteUsers = async (req, res) => {
     User.deleteMany({})
         .then(() => {
@@ -43,4 +103,4 @@ const deleteUsers = async (req, res) => {
         });
 };
 
-module.exports = { register, deleteUsers };
+module.exports = { registerUser, loginUser, deleteUsers };
