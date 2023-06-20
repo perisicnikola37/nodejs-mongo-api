@@ -1,9 +1,7 @@
-const app = require("./app");
 const express = require('express');
-const bodyParser = require('body-parser');
+const app = require("./app");
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 const axios = require('axios')
 require('dotenv').config();
 
@@ -12,10 +10,6 @@ const port = 3000;
 
 // Models
 const User = require('./models/userModel');
-
-// Middleware
-app.use(bodyParser.json());
-app.use(cookieParser());
 
 // MongoDB connection
 const mongoURI = process.env.DATABASE_URL;
@@ -60,43 +54,43 @@ app.get('/', (req, res) => {
     res.send('Hello, API!');
 });
 
-// Register route
-app.post('/register', async (req, res) => {
-    const { username, email, password, description } = req.body;
+// // Register route
+// app.post('/register', async (req, res) => {
+//     const { username, email, password, description } = req.body;
 
-    const translationOptions = {
-        method: 'POST',
-        url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
-        headers: {
-            'content-type': 'application/json',
-            'X-RapidAPI-Key': 'bcfdee6c9dmsh4e3903236f08f3ep1ec2e0jsn25dfcc1e60d7',
-            'X-RapidAPI-Host': 'rapid-translate-multi-traduction.p.rapidapi.com'
-        },
-        data: {
-            from: 'hr',
-            to: 'ar',
-            q: description
-        }
-    };
+//     const translationOptions = {
+//         method: 'POST',
+//         url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
+//         headers: {
+//             'content-type': 'application/json',
+//             'X-RapidAPI-Key': 'bcfdee6c9dmsh4e3903236f08f3ep1ec2e0jsn25dfcc1e60d7',
+//             'X-RapidAPI-Host': 'rapid-translate-multi-traduction.p.rapidapi.com'
+//         },
+//         data: {
+//             from: 'hr',
+//             to: 'ar',
+//             q: description
+//         }
+//     };
 
-    try {
-        const translationResponse = await axios.request(translationOptions);
-        const response = translationResponse.data[0];
+//     try {
+//         const translationResponse = await axios.request(translationOptions);
+//         const response = translationResponse.data[0];
 
-        const user = new User({ username, email, password, description: response });
-        user.save()
-            .then(() => {
-                res.send('User registered successfully!');
-            })
-            .catch((error) => {
-                console.error('Error registering user', error);
-                res.status(500).send('An error occurred while registering user.');
-            });
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('An error occurred while translating the description.');
-    }
-});
+//         const user = new User({ username, email, password, description: response });
+//         user.save()
+//             .then(() => {
+//                 res.send('User registered successfully!');
+//             })
+//             .catch((error) => {
+//                 console.error('Error registering user', error);
+//                 res.status(500).send('An error occurred while registering user.');
+//             });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('An error occurred while translating the description.');
+//     }
+// });
 
 
 // Login route

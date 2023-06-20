@@ -1,13 +1,18 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-// const mongoose = require('mongoose');
+const app = express();
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const axios = require('axios');
 require('dotenv').config();
 
-// Initialize application
-const app = express();
+const userRoutes = require('./routes/userRoutes');
+
+// Middleware
+app.use(express.json())
+app.use(cookieParser());
+
+// Use routes
+app.use("/", userRoutes);
 
 const authenticateToken = async (req, res, next) => {
     const token = req.cookies.token;
@@ -44,38 +49,6 @@ const authenticateToken = async (req, res, next) => {
 // Routes
 app.get('/', (req, res) => {
     res.send('Hello, API!');
-});
-
-app.post('/register', async (req, res) => {
-    const { username, email, password, description } = req.body;
-
-    const translationOptions = {
-        method: 'POST',
-        url: 'https://rapid-translate-multi-traduction.p.rapidapi.com/t',
-        headers: {
-            'content-type': 'application/json',
-            'X-RapidAPI-Key': process.env.RAPIDAPI_API_KEY,
-            'X-RapidAPI-Host': process.env.RAPIDAPI_API_HOST
-        },
-        data: {
-            from: 'hr',
-            to: 'ar',
-            q: description
-        }
-    };
-
-    try {
-        const translationResponse = await axios.request(translationOptions);
-        const response = translationResponse.data[0];
-
-        const user = new User({ username, email, password, description: response });
-        await user.save();
-
-        res.send('User registered successfully!');
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('An error occurred while registering user.');
-    }
 });
 
 app.post('/login', (req, res) => {
