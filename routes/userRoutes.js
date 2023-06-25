@@ -17,7 +17,7 @@ const swaggerOptions = {
             description: 'API documentation for Node.js API',
         },
     },
-    apis: ['./routes/userRoutes.js'], // Specify the file containing the API operations
+    apis: ['./routes/userRoutes.js'],
 };
 
 // Initialize swagger-jsdoc
