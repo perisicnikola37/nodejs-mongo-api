@@ -1,9 +1,9 @@
-const request = require('supertest');
 const app = require('../app');
+const request = require('supertest');
+const port = process.env.PORT || 3000;
 
 describe('User API endpoints', () => {
     test('Should return all users', async () => {
-        const port = process.env.PORT || 3000;
         const response = await request(`http://localhost:${port}`)
             .get('/api/v1/users');
 
