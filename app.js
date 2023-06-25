@@ -6,6 +6,7 @@ const axios = require('axios');
 require('dotenv').config();
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerOptions = require('./swagger/swagger-options')
 
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
@@ -13,42 +14,6 @@ const postRoutes = require('./routes/postRoutes');
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
-// Swagger options
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'Node.js API',
-            version: '1.0.0',
-            description: 'API documentation for Node.js API',
-        },
-        components: {
-            schemas: {
-                User: {
-                    type: 'object',
-                    properties: {
-                        name: {
-                            type: 'string'
-                        },
-                        email: {
-                            type: 'string'
-                        },
-                        password: {
-                            type: 'string'
-                        }
-                    },
-                    required: ['name', 'email', 'password']
-                }
-            }
-        }
-    },
-    apis: [
-        './routes/userRoutes.js',
-        './routes/postRoutes.js',
-        './swagger-docs.js'
-    ],
-};
 
 // Initialize Swagger-jsdoc
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
