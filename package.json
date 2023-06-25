@@ -19,6 +19,8 @@
     "mongoose": "^7.3.0",
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.3",
     "validator": "^13.9.0"
   },
   "devDependencies": {
