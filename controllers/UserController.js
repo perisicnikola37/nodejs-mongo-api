@@ -3,6 +3,15 @@ const User = require("../models/userModel");
 const axios = require('axios')
 const translationOptions = require("../lib/lib")
 
+const allUsers = async (req, res) => {
+    try {
+        const users = await User.find();
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching users' });
+    }
+};
+
 const registerUser = async (req, res) => {
     const { username, email, password, description } = req.body;
 
@@ -83,4 +92,4 @@ const logout = (req, res) => {
     res.send('Logged out successfully!');
 }
 
-module.exports = { registerUser, loginUser, deleteUsers, protectedRoute, logout };
+module.exports = { allUsers, registerUser, loginUser, deleteUsers, protectedRoute, logout };

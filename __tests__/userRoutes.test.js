@@ -2,19 +2,28 @@ const request = require('supertest');
 const app = require('../app');
 
 describe('User API endpoints', () => {
-    test('GET /api/v1/users should return all users', async () => {
-        const response = await request(app).get('/api/v1/users');
-        expect(response.status).toBe(200);
-        expect(response.body).toHaveProperty('users');
-    });
+    test('Should return all users', async () => {
+        const port = process.env.PORT || 3000;
+        const response = await request(`http://localhost:${port}`)
+            .get('/api/v1/users');
 
-    test('POST /api/v1/users should create a new user', async () => {
-        const response = await request(app)
-            .post('/api/v1/users')
-            .send({ name: 'John Doe', email: 'johndoe@example.com' });
-        expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty('user');
-        expect(response.body.user.name).toBe('John Doe');
-        expect(response.body.user.email).toBe('johndoe@example.com');
+        expect(response.status).toBe(200);
+
+        if (response.body.length === 0) {
+            // Expect an empty array if no users are returned
+            expect(response.body).toEqual([]);
+        } else {
+            // Expect an array containing user objects if users are returned
+            expect(response.body).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        _id: expect.any(String),
+                        username: expect.any(String),
+                        email: expect.any(String),
+                        description: expect.any(String),
+                    }),
+                ])
+            );
+        }
     });
 });

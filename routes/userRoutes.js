@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, deleteUsers, protectedRoute, logout } = require('./../controllers/UserController');
+const { allUsers, registerUser, loginUser, deleteUsers, protectedRoute, logout } = require('./../controllers/UserController');
 const { authenticateToken } = require('../middleware/middleware');
 
 // Import swagger-jsdoc and swagger-ui-express
@@ -13,6 +13,7 @@ const swaggerDocs = require('../swagger/swagger-docs');
 router.use('/docs', swaggerUi.serve);
 router.get('/docs', swaggerUi.setup(swaggerDocs));
 
+router.get('/users', allUsers);
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.delete('/delete-users', deleteUsers);
