@@ -1,4 +1,4 @@
-# Node.js API with MongoDB - Installation and Setup Guide  
+## Node.js API with MongoDB - Installation and Setup Guide  
 > This guide will walk you through the steps to install and set up a Node.js API with MongoDB, allowing you to build and interact with a database-driven API using JavaScript.
 
 ### Prerequisites
@@ -68,8 +68,6 @@ Use the following API endpoints to interact with the Node.js API:
 
 That's it! You have successfully installed and set up a Node.js API with MongoDB. 
 
-<br />
-
 ### Functionalities:
 
 - User Authentication: The API includes robust user authentication mechanisms, allowing users to register, log in, and manage their accounts securely.
@@ -89,7 +87,3 @@ That's it! You have successfully installed and set up a Node.js API with MongoDB
 - Cookie Parser: A middleware for Express.js that parses HTTP request cookies and makes them available in the API's request object.
 - Axios: A Promise-based HTTP client for Node.js, used for making HTTP requests to external APIs.
 - dotenv: A module for loading environment variables from a .env file into Node.js process.env, used for configuring sensitive data like database connection details.
-
-<img height="40" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNxNrAanjGEOddAWM28hcBBUK4tk-XEoPIDt3OMiXtxQ&s">
-<img height="40" src="https://i.ibb.co/kX3JpCQ/1-b0-Tt-GI6g-WFLlt-L1-Qk-Rx-Vdg.png">
-<img height="40" src="https://miro.medium.com/v2/resize:fit:1050/1*acfAKaDI7uv5GyFnJmiPhA.png">
