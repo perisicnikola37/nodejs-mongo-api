@@ -6,10 +6,7 @@ const axios = require('axios')
 require('dotenv').config();
 
 // Port
-const port = 3000;
-
-// Models
-const User = require('./models/userModel');
+const port = process.env.PORT || 3000;
 
 // MongoDB connection
 const mongoURI = process.env.DATABASE_URL;
@@ -21,7 +18,6 @@ mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .catch((error) => {
         console.error('Error connecting to MongoDB', error);
     });
-
 
 // Routes
 app.get('/', (req, res) => {

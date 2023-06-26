@@ -9,11 +9,12 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerOptions = require('./swagger/swagger-options')
 const morgan = require('morgan');
 
+// Routes
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 
 // Middleware
-app.use(morgan('tiny'));
+// app.use(morgan('tiny'));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -26,7 +27,5 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', postRoutes);
-
-const port = process.env.PORT || 3000;
 
 module.exports = app
