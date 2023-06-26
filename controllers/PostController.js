@@ -8,6 +8,17 @@ const getPosts = (req, res) => {
     });
 };
 
+const userPosts = (req, res) => {
+    const { id } = req.params;
+
+    Post.find({ user: id }).then((posts) => {
+        res.status(200).json({ "User posts": posts });
+    }).catch((error) => {
+        console.error('Error retrieving user posts', error);
+        res.status(500).send('An error occurred while retrieving user posts.');
+    });
+};
+
 const createPost = async (req, res) => {
     const username = req.user.username;
     const user = await User.findOne({ username });
@@ -30,4 +41,4 @@ const createPost = async (req, res) => {
     res.status(201).json({ post });
 };
 
-module.exports = { getPosts, createPost };
+module.exports = { getPosts, userPosts, createPost };

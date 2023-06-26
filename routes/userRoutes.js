@@ -6,7 +6,7 @@ const { authenticateToken } = require('../middleware/middleware');
 // Import swagger-jsdoc and swagger-ui-express
 const swaggerUi = require('swagger-ui-express');
 
-// Import the Swagger docs
+// Import the Swagger docs file
 const swaggerDocs = require('../swagger/swagger-docs');
 
 // Serve Swagger UI

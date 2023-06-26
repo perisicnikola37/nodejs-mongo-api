@@ -98,4 +98,14 @@
  *       401:
  *         description: Unauthorized
  */
-
+/**
+ * @swagger
+ * /api/v1/user-posts/:id:
+ *   get:
+ *     summary: Get all user posts
+ *     responses:
+ *       200:
+ *         description: Successful request
+ *       401:
+ *         description: Unauthorized
+ */
