@@ -1,0 +1,11 @@
+# Ignore development-related files and directories
+node_modules/
+.env
+.env.example
+.vscode/
+logs/
+coverage/
+
+# Ignore version control files
+.git
+.gitignore
