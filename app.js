@@ -7,11 +7,13 @@ require('dotenv').config();
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerOptions = require('./swagger/swagger-options')
+const morgan = require('morgan');
 
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 
 // Middleware
+app.use(morgan('tiny'));
 app.use(express.json());
 app.use(cookieParser());
 
