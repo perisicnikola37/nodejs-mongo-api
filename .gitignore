@@ -1,2 +1,25 @@
-.env
+# Ignore development-related files and directories
 node_modules/
+npm-debug.log*
+.env
+
+# Ignore build artifacts
+dist/
+build/
+
+# Ignore editor-specific files
+.vscode/
+.idea/
+
+# Ignore OS and editor generated files
+.DS_Store
+Thumbs.db
+
+# Ignore test coverage reports
+coverage/
+
+# Ignore environment-specific files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
