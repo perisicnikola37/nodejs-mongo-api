@@ -4,7 +4,7 @@
 ### Prerequisites
 > Before getting started, make sure you have the following prerequisites installed on your system:
 
-1. Node.js: Version 10 or above.
+1. Node.js: Version 14 or above.
 2. MongoDB: Version 3.6 or above.
 
 ### Step 1: Clone the Project Repository
@@ -66,7 +66,14 @@ Use the following API endpoints to interact with the Node.js API:
 - PUT /api/v1/posts/:id: Update a post by ID.
 - DELETE /api/v1/posts/:id: Delete a post by ID.
 
-That's it! You have successfully installed and set up a Node.js API with MongoDB. 
+### Accessing Swagger API Documentation
+To access the Swagger documentation for your API, follow these steps:
+- Start the API server if it's not already running.
+- Open a web browser and navigate to the following URL: `http://localhost:[port]/api-docs`
+
+Replace [port] with the actual port number your API is running on (e.g., `3000`)
+
+The Swagger documentation will be displayed, providing an interactive interface to explore and test your API endpoints.
 
 ### Functionalities:
 
