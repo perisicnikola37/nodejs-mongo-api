@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const axios = require('axios')
 const translationOptions = require("../lib/lib")
+const bcrypt = require("bcrypt");
 
 const allUsers = async (req, res) => {
     try {
@@ -31,8 +32,11 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email address is already registered' });
         }
 
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Store user
-        const user = new User({ username, email, password, description: response });
+        const user = new User({ username, email, password: hashedPassword, description: response });
         await user.save();
 
         res.status(201).json({ success: true, message: 'User registered successfully' });
@@ -44,29 +48,31 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
-    User.findOne({ username }).select('+password')
-        .then((user) => {
-            if (!user) {
-                res.status(401).send('Invalid username or password.');
-                return;
-            }
+    try {
+        const user = await User.findOne({ username }).select('+password');
+        if (!user) {
+            res.status(401).send('Invalid username or password.');
+            return;
+        }
 
-            if (user.password !== password) {
-                res.status(401).send('Invalid username or password.');
-                return;
-            }
+        // Compare the hashed password
+        const passwordMatch = await bcrypt.compare(password, user.password);
 
-            const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-                expiresIn: '30d'
-            });
+        if (!passwordMatch) {
+            res.status(401).send('Invalid username or password.');
+            return;
+        }
 
-            res.cookie('token', token, { httpOnly: true });
-            res.send({ token });
-        })
-        .catch((error) => {
-            console.error('Error authenticating user', error);
-            res.status(500).send('An error occurred while authenticating user.');
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
+            expiresIn: '30d'
         });
+
+        res.cookie('token', token, { httpOnly: true });
+        res.send({ token });
+    } catch (error) {
+        console.error('Error authenticating user', error);
+        res.status(500).send('An error occurred while authenticating user.');
+    }
 };
 
 const deleteUsers = async (req, res) => {
