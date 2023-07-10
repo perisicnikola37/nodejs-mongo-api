@@ -1,17 +1,14 @@
 const express = require('express');
-const app = require("./app");
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const axios = require('axios')
-require('dotenv').config();
+const { mongoURI, mongoOptions } = require('./lib/mongoConfiguration');
+const app = require("./app");
 
 // Port
 const port = process.env.PORT || 3000;
 
-// MongoDB connection
-const mongoURI = process.env.DATABASE_URL;
-
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI, mongoOptions)
     .then(() => {
         console.log('Connected to MongoDB');
     })
